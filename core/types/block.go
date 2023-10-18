@@ -85,6 +85,7 @@ type Header struct {
 	Rbx      uint64   `json:"rbx"`
 	RbxEpoch uint64   `json:"rbxEpoch"`
 	Supply   *big.Int `json:"supply"`
+	Perks    *big.Int `json:"perks"`
 
 	Nonce BlockNonce `json:"nonce"`
 
@@ -261,7 +262,6 @@ func NewBlock(lastBlockHeader *Header, header *Header, txs []*Transaction, uncle
 	b.header.Epoch = 0
 	b.header.EpochTx = 0
 	b.header.Rbx = 100000000
-	
 
 	if lastBlockHeader != nil {
 		lastRebaseInfo := rebase.RebaseInfo{
@@ -270,6 +270,7 @@ func NewBlock(lastBlockHeader *Header, header *Header, txs []*Transaction, uncle
 			Rbx:      lastBlockHeader.Rbx,
 			RbxEpoch: lastBlockHeader.RbxEpoch,
 			Supply:   lastBlockHeader.Supply,
+			Perks:    lastBlockHeader.Perks,
 			Tx:       0,
 		}
 		currentRebaseInfo := rebase.RebaseInfo{
@@ -278,15 +279,17 @@ func NewBlock(lastBlockHeader *Header, header *Header, txs []*Transaction, uncle
 			Rbx:      b.header.Rbx,
 			RbxEpoch: b.header.RbxEpoch,
 			Supply:   b.header.Supply,
+			Perks:    b.header.Perks,
 			Tx:       uint64(len(txs)),
 		}
-		epoch, epochTx, rbx, rbxEpoch, supply := rebase.ProcessRebase(b.header.Number, lastRebaseInfo, currentRebaseInfo)
+		epoch, epochTx, rbx, rbxEpoch, supply, perks := rebase.ProcessRebase(b.header.Number, lastRebaseInfo, currentRebaseInfo)
 
 		b.header.EpochTx = epochTx //lastBlockHeader.EpochTx + uint64(len(txs))
 		b.header.Epoch = epoch
 		b.header.Rbx = rbx
 		b.header.RbxEpoch = rbxEpoch
 		b.header.Supply = supply
+		b.header.Perks = perks
 
 		log.Info("Rebase info 💰", "Epoch", epoch, "RbxEpoch", rbxEpoch, "Rbx", rbx, "EpochTx", epochTx)
 	}
@@ -425,6 +428,7 @@ func (b *Block) EpochTx() uint64  { return b.header.EpochTx }
 func (b *Block) Rbx() uint64      { return b.header.Rbx }
 func (b *Block) RbxEpoch() uint64 { return b.header.RbxEpoch }
 func (b *Block) Supply() *big.Int { return new(big.Int).Set(b.header.Supply) }
+func (b *Block) Perks() *big.Int  { return new(big.Int).Set(b.header.Perks) }
 
 func (b *Block) BaseFee() *big.Int {
 	if b.header.BaseFee == nil {

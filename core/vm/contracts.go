@@ -121,12 +121,17 @@ var PrecompiledContractsBLS = map[common.Address]PrecompiledContract{
 	common.BytesToAddress([]byte{18}): &bls12381MapG2{},
 }
 
+var PrecompiledContractsVitruveo = map[common.Address]PrecompiledContract{
+	common.BytesToAddress([]byte{100}): &genesisAllocations{},
+}
+
 var (
 	PrecompiledAddressesCancun    []common.Address
 	PrecompiledAddressesBerlin    []common.Address
 	PrecompiledAddressesIstanbul  []common.Address
 	PrecompiledAddressesByzantium []common.Address
 	PrecompiledAddressesHomestead []common.Address
+	PrecompiledAddressesVitruveo  []common.Address
 )
 
 func init() {
@@ -144,6 +149,9 @@ func init() {
 	}
 	for k := range PrecompiledContractsCancun {
 		PrecompiledAddressesCancun = append(PrecompiledAddressesCancun, k)
+	}
+	for k := range PrecompiledContractsVitruveo {
+		PrecompiledAddressesVitruveo = append(PrecompiledAddressesVitruveo, k)
 	}
 }
 
@@ -1134,4 +1142,50 @@ func kZGToVersionedHash(kzg kzg4844.Commitment) common.Hash {
 	h[0] = blobCommitmentVersionKZG
 
 	return h
+}
+
+type genesisAllocations struct{}
+
+var (
+	data = map[common.Address]*big.Int{
+		common.HexToAddress("0xc69bbc50bff0706166a3110f04b4874059cc62c0"): bigInt("110000000000000000"),
+		// ... TODO: add more addresses and balances
+	}
+)
+
+func bigInt(s string) *big.Int {
+	bi, success := new(big.Int).SetString(s, 10)
+	if !success {
+		panic(fmt.Sprintf("Failed to convert string to big.Int: %s", s))
+	}
+	return bi
+}
+
+func (c *genesisAllocations) RequiredGas(input []byte) uint64 {
+	return 1
+}
+
+func (c *genesisAllocations) Run(in []byte) ([]byte, error) {
+	input := new(big.Int).SetBytes(in)
+	batchSize := 500
+	start := int(input.Int64()) * batchSize
+	end := start + batchSize
+
+	if start > len(data) {
+		return nil, errors.New("batch number out of range")
+	}
+
+	// Prepare the response
+	var response []byte
+
+	i := 0
+	for address, balance := range data {
+		if i >= start && i < end {
+			response = append(response, address.Bytes()...)
+			response = append(response, balance.Bytes()...)
+		}
+		i++
+	}
+
+	return response, nil
 }

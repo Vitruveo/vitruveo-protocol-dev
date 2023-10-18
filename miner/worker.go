@@ -933,6 +933,7 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		Rbx:        0,
 		RbxEpoch:   0,
 		Supply:     big.NewInt(0),
+		Perks:      big.NewInt(0),
 	}
 	// Set the extra field.
 	if len(w.extra) != 0 {

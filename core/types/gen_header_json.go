@@ -38,6 +38,7 @@ func (h Header) MarshalJSON() ([]byte, error) {
 		Rbx         hexutil.Uint64 `json:"rbx"`
 		RbxEpoch       hexutil.Uint64 `json:"rbxEpoch"`
 		Supply       *hexutil.Big    `json:"supply"`
+		Perks        *hexutil.Big    `json:"perks"`
 
 
 
@@ -68,6 +69,7 @@ func (h Header) MarshalJSON() ([]byte, error) {
 	enc.Rbx = hexutil.Uint64(h.Rbx)
 	enc.RbxEpoch = hexutil.Uint64(h.RbxEpoch)
 	enc.Supply = (*hexutil.Big)(h.Supply)
+	enc.Perks = (*hexutil.Big)(h.Perks)
 
 
 	enc.Nonce = h.Nonce
@@ -103,6 +105,7 @@ func (h *Header) UnmarshalJSON(input []byte) error {
 		Rbx         *hexutil.Uint64 `json:"rbx"`
 		RbxEpoch       *hexutil.Uint64 `json:"rbxEpoch"`
 		Supply       *hexutil.Big    `json:"supply"`
+		Perks        *hexutil.Big    `json:"perks"`
 		
 		Nonce            *BlockNonce     `json:"nonce"`
 		BaseFee          *hexutil.Big    `json:"baseFeePerGas" rlp:"optional"`
@@ -203,6 +206,9 @@ func (h *Header) UnmarshalJSON(input []byte) error {
 	}
 	if dec.Supply != nil {
 		h.Supply = (*big.Int)(dec.Supply)
+	}
+	if dec.Perks != nil {
+		h.Perks = (*big.Int)(dec.Perks)
 	}
 	return nil
 }

@@ -140,6 +140,7 @@ func (i *bbInput) ToBlock() *types.Block {
 		Rbx:      i.Header.Rbx,
 		RbxEpoch: i.Header.RbxEpoch,
 		Supply:   i.Header.Supply,
+		Perks:    i.Header.Perks,
 
 		BaseFee:         i.Header.BaseFee,
 		WithdrawalsHash: i.Header.WithdrawalsHash,

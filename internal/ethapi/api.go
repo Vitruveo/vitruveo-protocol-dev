@@ -1349,6 +1349,7 @@ func RPCMarshalHeader(head *types.Header) map[string]interface{} {
 		"rbx":      hexutil.Uint64(head.Rbx),
 		"rbxEpoch": hexutil.Uint64(head.RbxEpoch),
 		"supply":   (*hexutil.Big)(head.Supply),
+		"perks":    (*hexutil.Big)(head.Perks),
 	}
 	if head.BaseFee != nil {
 		result["baseFeePerGas"] = (*hexutil.Big)(head.BaseFee)

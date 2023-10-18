@@ -67,7 +67,8 @@ type Genesis struct {
 	EpochTx  uint64   `json:"epochTx"`
 	Rbx      uint64   `json:"rbx"`
 	RbxEpoch uint64   `json:"rbxEpoch"`
-	Supply   *big.Int `json:"supply”`
+	Supply   *big.Int `json:"supply"`
+	Perks    *big.Int `json:"perks"`
 
 	BaseFee       *big.Int `json:"baseFeePerGas"` // EIP-1559
 	ExcessBlobGas *uint64  `json:"excessBlobGas"` // EIP-4844
@@ -472,6 +473,7 @@ func (g *Genesis) ToBlock() *types.Block {
 		Rbx:      g.Rbx,
 		RbxEpoch: g.RbxEpoch,
 		Supply:   g.Supply,
+		Perks:    g.Perks,
 
 		Coinbase: g.Coinbase,
 		Root:     root,

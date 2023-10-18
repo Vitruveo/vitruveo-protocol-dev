@@ -15,9 +15,9 @@
 */**/*dapps*
 build/_vendor/pkg
 
-data/geth/
-data1/geth/
-data2/geth/
+data/
+data1/
+data2/
 
 .DS_Store
 

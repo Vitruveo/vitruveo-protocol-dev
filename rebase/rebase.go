@@ -2,27 +2,26 @@ package rebase
 
 import (
 	"math/big"
-	"time"
 
-	"math/rand"
-
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 )
 
-var BLOCKS_PER_EPOCH = big.NewInt(10) // 17280
-var START_TX_GOAL = uint64(3)         // 10000
-var EPOCH_TX_INCREMENT = uint64(1)    // 500
-var INTEREST_PER_EPOCH = uint64(100087671)
-var INITIAL_SUPPLY, _ = new(big.Int).SetString("50000000000000000000000000", 10)
-var MAX_SUPPLY, _ = new(big.Int).SetString("250000000000000000000000000", 10)
-var PERKS_MAX_EPOCHS = 720
-var PERKS_EPOCH_COINS, _ = new(big.Int).SetString("13888888888888888889000", 10)
-var PERKS_POOL = "0xbc1fBEbE0184446C9aac772E58A085b7cf13B543"
+var BLOCKS_PER_EPOCH = big.NewInt(29) // 17280
+const START_TX_GOAL = uint64(1000)    // 10000
+const EPOCH_TX_INCREMENT = uint64(50) // 500
+const INTEREST_PER_EPOCH = uint64(100087671)
 
-var UINT64_DIVISOR = uint64(100000000)
+var INITIAL_SUPPLY, _ = new(big.Int).SetString("60000000000000000000000000", 10) // 45.5 million (balance 14.5 million is added via Perks)
+var MAX_SUPPLY, _ = new(big.Int).SetString("250000000000000000000000000", 10)    // 250 million
+
+var PERKS_EPOCH_COINS, _ = new(big.Int).SetString("19863013698630136986000", 10)
+var PERKS_VAULT = common.HexToAddress("0xb198cee9d5a1a2d151d498ac1949c0dfbaef8c96")
+var PERKS_POOL = common.HexToAddress("0xec274828b11338a5fa5a0f83f60dad7be429f15c") //Deploy from 0xA52B723650dc4C2b982c87de55A1378571B28ab0
+
+const UINT64_DIVISOR = uint64(100000000)
+
 var DIVISOR = new(big.Int).Exp(big.NewInt(10), big.NewInt(8), nil)
-
-var rndSemaphore = uint64(0)
 
 type RebaseInfo struct {
 	Epoch    uint64
@@ -30,6 +29,7 @@ type RebaseInfo struct {
 	Rbx      uint64
 	RbxEpoch uint64
 	Supply   *big.Int
+	Perks    *big.Int
 	Tx       uint64
 }
 
@@ -50,32 +50,26 @@ func GetTransferAmount(amount *big.Int, rbx uint64) *big.Int {
 	return senderAmount
 }
 
-func ProcessRebase(blockNumber *big.Int, last RebaseInfo, current RebaseInfo) (uint64, uint64, uint64, uint64, *big.Int) {
+func ProcessRebase(blockNumber *big.Int, last RebaseInfo, current RebaseInfo) (uint64, uint64, uint64, uint64, *big.Int, *big.Int) {
 
 	epoch := last.Epoch
 	epochTx := last.EpochTx
 	rbx := last.Rbx
 	rbxEpoch := last.RbxEpoch
-	supply := GetRebasedAmount(INITIAL_SUPPLY, current.Rbx)
+	supply := GetRebasedAmount(INITIAL_SUPPLY, rbx)
+	perks := big.NewInt(0)
 
 	// A new epoch occurs when the block number is evenly divisible by Blocks_Per_Epoch
 	newEpoch := new(big.Int).Mod(blockNumber, BLOCKS_PER_EPOCH)
-	if newEpoch.Sign() == 0 {
+	if newEpoch.Sign() == 0 && (supply.Cmp(MAX_SUPPLY) == -1) {
 
 		// Epoch increment is conditional on meeting at least 75% of TX goal for epoch
 		txGoal := START_TX_GOAL + (rbxEpoch * EPOCH_TX_INCREMENT)
 
-		// Only for testing, we compute the transactions as a random number
-		if rndSemaphore == 0 {
-			rand.Seed(time.Now().UnixNano()) // Seed the random number generator
-			epochTx = uint64(0 + rand.Intn(int(txGoal+(txGoal/2))))
-			rndSemaphore = epochTx
-		} else {
-			epochTx = rndSemaphore
-			rndSemaphore = 0
-		}
-
 		txRatio := (epochTx * 100) / txGoal
+
+		// FORCE REBASE TO ALWAYS OCCUR EVERY
+		txRatio = 100
 
 		// TX Goal was met or exceeded
 		if txRatio >= 75 {
@@ -90,9 +84,13 @@ func ProcessRebase(blockNumber *big.Int, last RebaseInfo, current RebaseInfo) (u
 
 			rbx = rbx * interest / UINT64_DIVISOR
 
-			// Add perks coins
+			// Add perks coins conditionally
+			// Actual addition handled at the next block in clique/Finalize #576
+			// This conveys an intent to add...actual perks may not be added if
+			// supply is depleted
+			perks = PERKS_EPOCH_COINS
 
-			log.Warn("Rebase Success 🎉🎉🎉", "Epoch", epoch, "RbxEpoch", rbxEpoch, "Rbx", rbx, "Ratio", txRatio)
+			log.Warn("Rebase Success 🎉🎉🎉", "Epoch", epoch, "RbxEpoch", rbxEpoch, "Rbx", rbx, "Ratio", txRatio, "Supply", supply)
 
 		} else {
 			log.Warn("Rebase Skipped 🙁", "Goal", txGoal, "TX", epochTx, "Ratio", txRatio)
@@ -108,5 +106,5 @@ func ProcessRebase(blockNumber *big.Int, last RebaseInfo, current RebaseInfo) (u
 
 	}
 
-	return epoch, epochTx, rbx, rbxEpoch, supply
+	return epoch, epochTx, rbx, rbxEpoch, supply, perks
 }

@@ -50,6 +50,11 @@ func (obj *Header) EncodeRLP(_w io.Writer) error {
 	} else {
 		w.WriteBigInt(obj.Supply)
 	}
+	if obj.Perks == nil {
+		w.Write(rlp.EmptyString)
+	} else {
+		w.WriteBigInt(obj.Perks)
+	}
 
 	w.WriteBytes(obj.Nonce[:])
 	_tmp1 := obj.BaseFee != nil
