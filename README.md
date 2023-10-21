@@ -1,4 +1,4 @@
-## Vitruveo TestNet v0.5.2
+## Vitruveo TestNet v0.5.3
 
 Official Golang execution layer implementation of the Vitruveo protocol forked from Ethereum protocol.
 
