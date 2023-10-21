@@ -7,17 +7,18 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 )
 
-var BLOCKS_PER_EPOCH = big.NewInt(29) // 17280
-const START_TX_GOAL = uint64(1000)    // 10000
-const EPOCH_TX_INCREMENT = uint64(50) // 500
+var BLOCKS_PER_EPOCH = big.NewInt(17280)
+
+const START_TX_GOAL = uint64(10000)
+const EPOCH_TX_INCREMENT = uint64(500)
 const INTEREST_PER_EPOCH = uint64(100087671)
 
-var INITIAL_SUPPLY, _ = new(big.Int).SetString("60000000000000000000000000", 10) // 45.5 million (balance 14.5 million is added via Perks)
+var INITIAL_SUPPLY, _ = new(big.Int).SetString("60000000000000000000000000", 10) // 60 million
 var MAX_SUPPLY, _ = new(big.Int).SetString("250000000000000000000000000", 10)    // 250 million
 
 var PERKS_EPOCH_COINS, _ = new(big.Int).SetString("19863013698630136986000", 10)
-var PERKS_VAULT = common.HexToAddress("0xb198cee9d5a1a2d151d498ac1949c0dfbaef8c96")
-var PERKS_POOL = common.HexToAddress("0xec274828b11338a5fa5a0f83f60dad7be429f15c") //Deploy from 0xA52B723650dc4C2b982c87de55A1378571B28ab0
+var PERKS_VAULT = common.HexToAddress("0x2b3c3fb089301488c96bbc6f55f167fd1b128e9f")
+var PERKS_POOL = common.HexToAddress("0xec274828b11338a5fa5a0f83f60dad7be429f15c") //Deploy from 0xa52b723650dc4c2b982c87de55a1378571b28ab0
 
 const UINT64_DIVISOR = uint64(100000000)
 
@@ -68,9 +69,6 @@ func ProcessRebase(blockNumber *big.Int, last RebaseInfo, current RebaseInfo) (u
 
 		txRatio := (epochTx * 100) / txGoal
 
-		// FORCE REBASE TO ALWAYS OCCUR EVERY
-		txRatio = 100
-
 		// TX Goal was met or exceeded
 		if txRatio >= 75 {
 			// Upper limit is 125%
@@ -85,7 +83,7 @@ func ProcessRebase(blockNumber *big.Int, last RebaseInfo, current RebaseInfo) (u
 			rbx = rbx * interest / UINT64_DIVISOR
 
 			// Add perks coins conditionally
-			// Actual addition handled at the next block in clique/Finalize #576
+			// Actual addition handled at the next block in consensus/clique/Finalize #576
 			// This conveys an intent to add...actual perks may not be added if
 			// supply is depleted
 			perks = PERKS_EPOCH_COINS
