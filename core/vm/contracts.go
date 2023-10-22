@@ -146,9 +146,6 @@ func init() {
 	for k := range PrecompiledContractsCancun {
 		PrecompiledAddressesCancun = append(PrecompiledAddressesCancun, k)
 	}
-	for k := range PrecompiledContractsVitruveo {
-		PrecompiledAddressesVitruveo = append(PrecompiledAddressesVitruveo, k)
-	}
 }
 
 // ActivePrecompiles returns the precompiles enabled with the current configuration.
