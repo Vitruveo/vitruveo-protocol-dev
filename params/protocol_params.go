@@ -132,6 +132,7 @@ const (
 	MaxInitCodeSize = 2 * MaxCodeSize // Maximum initcode to permit in a creation transaction and create instructions
 
 	// Precompiled contract gas prices
+	RebaseInfoGas uint64 = 0 // Vitruveo rebase info
 
 	EcrecoverGas        uint64 = 3000 // Elliptic curve sender recovery gas price
 	Sha256BaseGas       uint64 = 60   // Base price for a SHA256 operation

@@ -16,7 +16,7 @@ const INTEREST_PER_EPOCH = uint64(100087671)
 var INITIAL_SUPPLY, _ = new(big.Int).SetString("60000000000000000000000000", 10) // 60 million
 var MAX_SUPPLY, _ = new(big.Int).SetString("250000000000000000000000000", 10)    // 250 million
 
-var PERKS_EPOCH_COINS, _ = new(big.Int).SetString("19863013698630136986000", 10)
+var PERKS_EPOCH_COINS, _ = new(big.Int).SetString("21232876712328800000000", 10) // 15.5MM divided by 730 epochs vesting
 var PERKS_VAULT = common.HexToAddress("0x2b3c3fb089301488c96bbc6f55f167fd1b128e9f")
 var PERKS_POOL = common.HexToAddress("0xec274828b11338a5fa5a0f83f60dad7be429f15c") //Deploy from 0xa52b723650dc4c2b982c87de55a1378571b28ab0
 
