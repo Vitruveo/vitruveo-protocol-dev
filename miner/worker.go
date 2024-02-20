@@ -788,10 +788,26 @@ func (w *worker) applyTransaction(env *environment, tx *types.Transaction) (*typ
 	if env.header.Rbx == 0 {
 		blockNumber := env.header.Number.Uint64()
 		prevBlockNumber := blockNumber - 1
-		prevBlock := w.chain.GetBlockByNumber(prevBlockNumber)
-		//log.Warn("@@@APPLY", "num", blockNumber, "prevNum", prevBlockNumber, "pblock", prevBlock)
-		currentRbx = prevBlock.Header().Rbx
+		var prevBlock *types.Block
+		for {
+			prevBlock = w.chain.GetBlockByNumber(prevBlockNumber)
+			if prevBlock != nil || prevBlockNumber == 2 {
+				break
+			}
+			prevBlockNumber--
+		}
+		if prevBlock != nil {
+			log.Warn("@@@@@@@ DEBUG", "block", prevBlockNumber, "header", prevBlock.Header())
+			if prevBlock.Header() != nil {
+				currentRbx = prevBlock.Header().Rbx
+			}
+		}
 	}
+
+	if currentRbx == 0 {
+		currentRbx = 100000000
+	}
+
 	receipt, err := core.ApplyTransaction(w.chainConfig, w.chain, &env.coinbase, env.gasPool, env.state, env.header, tx, &env.header.GasUsed, *w.chain.GetVMConfig(), currentRbx)
 	if err != nil {
 		env.state.RevertToSnapshot(snap)
