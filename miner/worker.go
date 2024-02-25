@@ -797,7 +797,7 @@ func (w *worker) applyTransaction(env *environment, tx *types.Transaction) (*typ
 			prevBlockNumber--
 		}
 		if prevBlock != nil {
-			log.Warn("@@@@@@@ DEBUG", "block", prevBlockNumber, "header", prevBlock.Header())
+			//log.Warn("@@@@@@@ DEBUG", "block", prevBlockNumber, "header", prevBlock.Header())
 			if prevBlock.Header() != nil {
 				currentRbx = prevBlock.Header().Rbx
 			}
