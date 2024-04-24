@@ -1,3 +1,4 @@
+# Generate images at ECR AWS
 name: Generate image
 
 on:
