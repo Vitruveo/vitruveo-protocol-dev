@@ -1,0 +1,20 @@
+name: Deploy for devnet
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - .github/workflows/*.yaml
+            - **/*.go
+
+jobs:
+    build:
+        name: Deploying
+        runs-on: ubuntu-latest
+        environment: devnet
+        steps:
+            - name: Updating devnet
+              env:
+                  DEVNET_UPDATE_URL: ${{ secrets.DEVNET_UPDATE_URL }}
+              run: |
+                  curl -X "POST" -H 'Content-Type: application/json' -d "{}" $DEVNET_UPDATE_URL
