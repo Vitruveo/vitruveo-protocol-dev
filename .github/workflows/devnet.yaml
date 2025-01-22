@@ -2,7 +2,7 @@ name: Deploy for devnet
 
 on:
   push:
-    branches: [main]
+    branches: [devnet]
 
 jobs:
   build:
